@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Top Up Game Premium</title>
+
+<style>
+body { margin:0; font-family:sans-serif; background:#0f172a; color:white; }
+nav { display:flex; justify-content:space-between; padding:10px 15px; background:rgba(0,0,0,0.6);} 
+
+.marquee { background:#22c55e; color:black; padding:8px; font-weight:bold; overflow:hidden; white-space:nowrap; }
+.marquee span { display:inline-block; padding-left:100%; animation:scroll 12s linear infinite; }
+@keyframes scroll {0%{transform:translateX(0);}100%{transform:translateX(-100%);} }
+
+/* SLIDER UTAMA */
+.slider {
+  width: 95%;
+  margin: 20px auto;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* WRAPPER SLIDE */
+.slides {
+  display: flex;
+  transition: transform 0.7s ease;
+}
+
+/* PER SLIDE */
+.slide {
+  min-width: 100%;
+  aspect-ratio: 1920 / 640; /* kunci biar ga kepotong */
+  position: relative;
+}
+
+/* GAMBAR */
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* ini penting */
+  object-position: center;
+  display: block;
+  background: #020617; /* biar ada background kalau kosong */
+}
+
+.slide::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(0,0,0,0.3), transparent);
+}
+
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:15px; padding:15px; }
+.card { background:#1e293b; border-radius:10px; cursor:pointer; overflow:hidden; }
+.card img { width:100%; height:100px; object-fit:cover; }
+.card p { text-align:center; }
+.card {
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px) scale(1.03);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+}
+
+.card.active {
+  border: 2px solid #22c55e;
+  transform: scale(1.05);
+  box-shadow: 0 0 20px #22c55e;
+}
+
+.form { margin:15px; padding:15px; background:#1e293b; border-radius:10px; }
+input, button { width:100%; padding:10px; margin-top:10px; border:none; border-radius:8px; }
+button {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+}
+
+/* HOVER */
+button:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+  background: linear-gradient(135deg, #4f46e5, #4338ca);
+}
+
+/* KLIK */
+button:active {
+  transform: scale(0.96);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+}
+
+.menu-tabs { display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; }
+.tab { flex:1; min-width:120px; text-align:center; padding:8px; background:#334155; border-radius:8px; cursor:pointer; }
+.tab.active { background:#6366f1; }
+
+.nominal-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:10px; }
+.nominal-item { background:#334155; padding:10px; border-radius:10px; text-align:center; cursor:pointer; }
+.nominal-item.active { border:2px solid #22c55e; }
+.nominal-item {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* efek glow */
+.nominal-item::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 12px;
+  background: linear-gradient(120deg, #22c55e, #6366f1, #22c55e);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 0;
+  filter: blur(8px);
+}
+
+/* isi card tetap di atas */
+.nominal-item > div {
+  position: relative;
+  z-index: 1;
+}
+
+/* hover effect */
+.nominal-item:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+}
+
+.nominal-item:hover::before {
+  opacity: 1;
+}
+
+/* saat dipilih (active) lebih nyala */
+.nominal-item.active::before {
+  opacity: 1;
+  background: linear-gradient(120deg, #22c55e, #22c55e);
+}
+
+/* NEW (form upgrade) */
+.step-box { background:#020617; padding:10px; border-radius:10px; margin-bottom:10px; }
+.payment-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:10px; }
+.payment-item {
+  position: relative;
+  cursor: pointer;
+  border-radius:12px;
+  padding:12px;
+  overflow:hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* isi card */
+.payment-item::after {
+  content: attr(data-name);
+  position: relative;
+  display:block;
+  background: linear-gradient(135deg, #020617, #0f172a);
+  border:1px solid #1e293b;
+  border-radius:12px;
+  padding:12px;
+  text-align:center;
+  font-weight:bold;
+  z-index:1;
+}
+
+/* glow sama seperti nominal */
+.payment-item::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 12px;
+  background: linear-gradient(120deg, #22c55e, #06b6d4);
+  opacity: 0;
+  transition: 0.3s;
+  filter: blur(8px);
+}
+
+/* hover */
+.payment-item:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+}
+
+.payment-item:hover::before {
+  opacity: 1;
+}
+
+/* active */
+.payment-item.active::before {
+  opacity: 1;
+}
+
+.payment-item.active::after {
+  border:1px solid #22c55e;
+}
+.payment-item.active { border:2px solid #22c55e; }
+
+.result { margin:15px; padding:15px; background:#020617; border-radius:10px; }
+.hidden { display:none; }
+
+#particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background: #020617;
+}
+
+</style>
+</head>
+
+<body>
+    <canvas id="particles"></canvas>
+
+<nav style="display:flex;justify-content:space-between;align-items:center;padding:10px 20px;background:rgba(0,0,0,0.6);backdrop-filter:blur(10px);">
+
+  <!-- LEFT -->
+  <div style="display:flex;align-items:center;gap:15px;position:relative;">
+    <img src="img/alipstore.png" class="logo" style="width:70px;height:70px;object-fit:contain;">
+    <h2>ALIPSTORE</h2>
+
+
+  <!-- CENTER -->
+  <div style="flex:1;text-align:center;">
+    <input id="searchGame" placeholder="Cari game..." 
+    style="width:60%;max-width:300px;padding:7px;border-radius:20px;border:none;background:#1e293b;color:white;">
+  </div>
+
+  <!-- RIGHT -->
+  <div style="display:flex;gap:15px;align-items:center;">
+    <span style="color:#22c55e;">● Online</span>
+    <a href="https://wa.me/6285179713643" target="_blank" 
+    style="background:#22c55e;color:black;padding:6px 12px;border-radius:20px;text-decoration:none;font-weight:bold;">
+    💬 Chat
+    </a>
+  </div>
+
+</nav>
+
+<div class="marquee"><span>🔥 TOP UP TERMURAH 🔥</span></div>
+
+<div class="slider">
+<div class="slides" id="slides">
+<div class="slide"><img src="img/MLBB 1.png"></div>
+<div class="slide"><img src="img/FF 1.png"></div>
+<div class="slide"><img src="img/tes 3.png"></div>
+</div>
+</div>
+
+<div class="grid">
+<div class="card" onclick="selectGame(this,'Mobile Legends')"><img src="img/ml1.jpg"><p>ML</p></div>
+<div class="card" onclick="selectGame(this,'Free Fire')"><img src="img/ff.jpg"><p>FF</p></div>
+<div class="card" onclick="selectGame(this,'PUBG Mobile')"><img src="https://cdn.akamai.steamstatic.com/steam/apps/578080/header.jpg"><p>PUBG</p></div>
+<div class="card" onclick="selectGame(this,'Valorant')"><img src="img/valorant.jpg"><p>Valorant</p></div>
+<div class="card" onclick="selectGame(this,'COD Mobile')"><img src="img/codm.jpg"><p>CODM</p></div>
+<div class="card" onclick="selectGame(this,'Honor Of Kings')"><img src="img/HOk.jpg"><p>HOK</p></div>
+<div class="card" onclick="selectGame(this,'Clash of Clans')"><img src="img/coc.png"><p>COC</p></div>
+</div>
+
+<div id="form" class="form hidden">
+<h3 id="gameTitle"></h3>
+
+<!-- STEP 1 -->
+<div class="step-box">
+  <b>1. Masukkan Data Akun</b>
+  <div id="inputArea"></div>
+</div>
+
+<!-- STEP 2 -->
+<div class="step-box">
+  <b>2. Pilih Nominal</b>
+  <div id="menuTabs" class="menu-tabs"></div>
+  <div id="nominalList" class="nominal-grid"></div>
+</div>
+
+<!-- STEP 3 -->
+<div class="step-box">
+  <b>3. Jumlah Pembelian</b>
+  <input type="number" id="qty" value="1" min="1">
+</div>
+
+<!-- STEP 4 -->
+<div class="step-box">
+  <b>4. Pilih Pembayaran</b>
+  <div class="payment-grid">
+    <div class="payment-item" data-name="DANA"></div>
+    <div class="payment-item" data-name="OVO"></div>
+    <div class="payment-item" data-name="GOPAY"></div>
+    <div class="payment-item" data-name="QRIS"></div>
+  </div>
+</div>
+
+<button onclick="checkout()">Checkout</button>
+</div>
+
+<div id="result" class="result hidden"></div>
+
+<script>
+let game="";
+let selectedMenu="";
+let selectedNominal="";
+let selectedPayment="";
+let selectedPrice = 0;
+let index=0;
+
+const inputConfig = {
+  "Mobile Legends": [
+    { id: "userId", placeholder: "Masukkan ID" },
+    { id: "server", placeholder: "Masukkan Server" }
+  ],
+  "Free Fire": [
+    { id: "userId", placeholder: "Masukkan ID" }
+  ],
+  "PUBG Mobile": [
+    { id: "userId", placeholder: "Masukkan ID" },
+    { id: "nickname", placeholder: "Masukkan Nickname" }
+  ],
+  "Valorant": [
+    { id: "riotId", placeholder: "Masukkan Riot ID" }
+  ],
+  "COD Mobile": [
+    { id: "userId", placeholder: "Masukkan UID" }
+  ],
+  "Clash of Clans": [
+    { id: "playerTag", placeholder: "Masukkan Player Tag" }
+  ]
+};
+
+const dataGame={
+"Mobile Legends":{
+  "💎 Best Seller":[
+  "5(5+0) Diamond - 3,000",
+  "10(9+1) Diamond - 5,000",
+  "44(40+4) Diamond - 14,000",
+  "74 (67+7) Diamonds - 23,000",
+  "113 (102+11) Diamonds - 33,000",
+  "301 (261+40) Diamonds - 85.000",
+  "408 (367+41) Diamonds - 115.000",
+  "512 (461+51) Diamonds - 146.000"],
+  "📅 Weekly Pass":[
+  "Weekly Elite Pack - 16,000",
+  "Weekly Diamond Pass - 29,000",
+  "2x Weekly Diamond Pass - 57,000",
+  "3x Weekly Diamond Pass - 85,000", 
+  "4x Weekly Diamond Pass -  115,000"],
+  "💎 Top Up Instant":[
+  "12 (11+1) Diamonds - 5,536",
+  "14 (13+1) Diamonds - 6,100",
+  "15 (15+0) Diamonds - 6,553",
+  "18 (17+1) Diamonds - 7,129",
+  "22 (20+2) Diamonds - 7,744",
+  "20 (18+2) Diamonds - 8,155",
+  "28 (25+3) Diamonds - 10,098",
+  "30 (28+2) Diamonds - 10,674",
+ "33 (30+3) Diamonds - 11,463",
+ "34 (31+3) Diamonds - 12,267",
+ "36 (33+3) Diamonds - 12,265",
+ "45 (42+3) Diamonds - 15,278",
+ "46 (42+4) Diamonds - 15,346",
+ "50 (45+5) Diamonds - 15,200",
+ "56 (51+5) Diamonds - 16,371",
+ "59 (53+6) Diamonds - 18,204",
+ "60 (55+5) Diamonds - 19,458",
+ "64 (58+6) Diamonds - 19,726",
+ "67 (62+5) Diamonds - 20,809",]
+},
+"Free Fire":{
+  "💎 Diamond":["70 DM - 10k","140 DM - 20k"],
+  "📅 Membership":["Member Mingguan - 25k"],
+  "hahahaha1":["hngngbgggg"],
+  "hahahaha2":["hngngbgggg"],
+  "hahahaha3":["hngngbgggg"],
+  "hahahaha4":["hngngbgggg"],
+  "hahahaha6":["hngngbgggg"]
+},
+"PUBG Mobile":{
+  "💰 UC":["60 UC - 15k","325 UC - 75k"],
+  "🎫 Royale Pass":["Elite Pass - 150k"]
+},
+"Valorant":{
+  "🔫 VP":["125 VP - 15k","420 VP - 50k"],
+  "🎁 Bundle":["Skin Bundle - 200k"]
+},
+"Roblox":{
+  "🧱 Robux":["80 Robux - 15k","400 Robux - 70k"]
+},
+"COD Mobile":{
+  "💰 CP":["80 CP - 15k","400 CP - 75k"],
+  "🎫 Pass":["Battle Pass - 120k"]
+},
+"Honor Of Kings":{
+  "💎 Token":["80 Token - 15k","240 Token - 45k"]
+},
+"Clash of Clans":{
+  "💎 Gems":["80 Gems - 15k","500 Gems - 75k"],
+  "📦 Pack":["Starter Pack - 50k"]
+},
+};
+
+function openGame(n){
+  game=n;
+  document.getElementById("form").classList.remove("hidden");
+  document.getElementById("gameTitle").innerText=n;
+   renderInput();
+  renderMenu();
+}
+
+function renderMenu(){
+  let tabs=document.getElementById("menuTabs");
+  tabs.innerHTML="";
+
+  let first=true;
+  for(let menu in dataGame[game]){
+    let div=document.createElement("div");
+    div.className="tab";
+    div.innerText=menu;
+
+div.onclick = () => {
+  document.querySelectorAll(".tab").forEach(e => e.classList.remove("active"));
+  div.classList.add("active");
+
+  selectedMenu = menu; // ✅ ini yang benar
+  renderNominal();     // refresh isi nominal
+};
+
+    if(first){ div.classList.add("active"); selectedMenu=menu; first=false; }
+
+    tabs.appendChild(div);
+  }
+
+  renderNominal();
+}
+
+function renderNominal(){
+  let list=document.getElementById("nominalList");
+  list.innerHTML="";
+
+  dataGame[game][selectedMenu].forEach(item=>{
+    
+    // pisahin teks (contoh: "86 DM - 20k")
+    let split = item.split("-");
+    let title = split[0].trim();
+    let price = split[1] ? split[1].trim() : "";
+
+    let div=document.createElement("div");
+    div.className="nominal-item";
+
+    div.innerHTML = `
+      <div style="
+       background: linear-gradient(135deg, #020617, #0f172a);
+border:1px solid #1e293b;
+        border-radius:12px;
+        padding:12px;
+        display:flex;
+        flex-direction:column;
+        gap:8px;
+        position:relative;
+      ">
+        <div style="font-size:12px;opacity:0.8;">
+          ${title}
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;">
+          <img src="https://cdn-icons-png.flaticon.com/512/3523/3523887.png" width="24">
+          <b style="color:#67e8f9;">Rp ${price}</b>
+        </div>
+
+        <div style="
+          position:absolute;
+          bottom:8px;
+          right:8px;
+          background:white;
+          color:black;
+          font-size:10px;
+          padding:2px 6px;
+          border-radius:6px;
+        ">
+          INSTAN
+        </div>
+      </div>
+    `;
+
+div.onclick=()=>{
+  document.querySelectorAll(".nominal-item").forEach(e=>e.classList.remove("active"));
+  div.classList.add("active");
+
+  selectedNominal = item;
+
+  // ambil harga
+  let cleanPrice = price.replace(/[^\d]/g, "");
+  selectedPrice = parseInt(cleanPrice);
+};
+
+    list.appendChild(div);
+  });
+}
+
+// payment select
+document.addEventListener("click", function(e){
+  if(e.target.classList.contains("payment-item")){
+    document.querySelectorAll(".payment-item").forEach(el=>el.classList.remove("active"));
+    e.target.classList.add("active");
+    selectedPayment = e.target.getAttribute("data-name");
+  }
+});
+
+function checkout(){
+ let inputs = document.querySelectorAll("#inputArea input");
+let dataAkun = [];
+
+for (let i of inputs) {
+  if (!i.value) {
+    alert("Masukkan Dengan Benar!!!");
+    return; // langsung stop function
+  }
+  dataAkun.push(i.value);
+}
+  let qty = parseInt(document.getElementById("qty").value);
+
+  if(dataAkun.length === 0 || !selectedNominal || !selectedPayment){
+    alert("Masukkan Dengan Benar");
+    return;
+  }
+
+  let total = selectedPrice * qty;
+
+  // format rupiah
+  let formatRupiah = total.toLocaleString("id-ID");
+
+  let pesan = `🔥 *ORDER TOP UP* 🔥
+  
+Game: ${game}
+Data: ${dataAkun.join(" | ")}
+Kategori: ${selectedMenu}
+Item: ${selectedNominal}
+Jumlah: ${qty}
+Total: Rp ${formatRupiah}
+Pembayaran: ${selectedPayment}
+
+Mohon diproses ya 🙏`;
+
+  let url = "https://wa.me/6285179713643?text=" + encodeURIComponent(pesan);
+  window.open(url, "_blank");
+}
+
+setInterval(()=>{
+  let slides=document.getElementById("slides");
+  index++; if(index>2) index=0;
+  slides.style.transform=`translateX(-${index*100}%)`;
+},3000);
+
+// SEARCH GAME
+document.getElementById("searchGame").addEventListener("keyup", function() {
+  let keyword = this.value.toLowerCase();
+  let cards = document.querySelectorAll(".card");
+
+  cards.forEach(card => {
+    let text = card.innerText.toLowerCase();
+
+    if (text.includes(keyword)) {
+      card.style.display = "block";
+    } else {
+      card.style.display = "none";
+    }
+  });
+});
+
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+
+// bikin partikel
+for (let i = 0; i < 80; i++) {
+  particles.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    size: Math.random() * 2 + 1,
+    speedX: Math.random() * 0.5 - 0.25,
+    speedY: Math.random() * 0.5 - 0.25
+  });
+}
+
+// animasi
+function animateParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  particles.forEach(p => {
+    p.x += p.speedX;
+    p.y += p.speedY;
+
+    // balik kalau keluar layar
+    if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+    if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+
+    // gambar partikel
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fillStyle = "#22c55e";
+    ctx.fill();
+  });
+
+  requestAnimationFrame(animateParticles);
+}
+
+function renderInput(){
+  let area = document.getElementById("inputArea");
+  area.innerHTML = "";
+
+  let config = inputConfig[game];
+
+  if(!config){
+    area.innerHTML = `<input id="userId" placeholder="Masukkan ID">`;
+    return;
+  }
+
+  config.forEach(field => {
+    let input = document.createElement("input");
+    input.id = field.id;
+    input.placeholder = field.placeholder;
+    area.appendChild(input);
+  });
+}
+
+animateParticles();
+
+// responsive
+window.addEventListener("resize", () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+
+function selectGame(el, gameName) {
+  // hapus active dari semua card
+  document.querySelectorAll(".card").forEach(c => c.classList.remove("active"));
+
+  // tambahkan active ke yang diklik
+  el.classList.add("active");
+
+  // lanjut buka game
+  openGame(gameName);
+}
+
+</script>
+
+</body>
+</html>
